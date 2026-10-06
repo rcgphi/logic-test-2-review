@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TL and Truth-Tables PromptForger - Test 2 Review</title>
+<style>
+:root{
+  --ink:#1f2937;--muted:#5c6775;--line:#d5dce5;--panel:#f6f8fb;
+  --accent:#1f4f7a;--accent2:#2d6b8f;--ok:#166534;--okbg:#ecfdf3;
+  --bad:#991b1b;--badbg:#fff1f2;--warn:#8a5b00;--warnbg:#fff8e6;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);margin:0;background:#fff;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 18px 54px}
+h1{font-size:2rem;margin:0 0 7px;color:#111827}
+h2{font-size:1.4rem;margin:30px 0 10px;color:#173b5c}
+h3{font-size:1.08rem;margin:19px 0 8px}
+p{margin:8px 0 12px}
+.subtitle{color:var(--muted);margin-bottom:20px}
+.note,.status{border:1px solid var(--line);background:var(--panel);padding:13px 15px;border-radius:10px;margin:14px 0}
+.warning{display:none;color:var(--warn);background:var(--warnbg);border:1px solid #ecd49b;padding:11px 13px;border-radius:9px;margin:14px 0}
+.warning.show{display:block}
+details{border:1px solid var(--line);border-radius:10px;margin:12px 0;background:#fff}
+summary{cursor:pointer;padding:13px 15px;font-weight:700;background:var(--panel);border-radius:10px}
+details[open] summary{border-bottom:1px solid var(--line);border-radius:10px 10px 0 0}
+.details-body{padding:15px 17px}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:10px}
+.ref-card{border:1px solid var(--line);border-radius:9px;padding:12px;background:#fff}
+.ref-card h3{margin-top:0}
+.section{margin-top:30px;padding-top:2px}
+.section-title{border-bottom:3px solid var(--accent);padding-bottom:7px;margin-bottom:14px}
+.question{border:1px solid var(--line);border-radius:10px;padding:15px;margin:12px 0;background:#fff}
+.question.correct,.tt-problem.correct{border-color:#82bf97;background:var(--okbg)}
+.question.incorrect,.tt-problem.incorrect{border-color:#d99a9a;background:var(--badbg)}
+.qtext{font-weight:700;margin-bottom:10px}
+.formula{font-family:"Times New Roman",Cambria,serif;font-size:1.18rem;letter-spacing:.01em}
+.options label{display:block;padding:7px 8px;border-radius:7px;cursor:pointer}
+.options label:hover{background:#f1f4f8}
+input[type="radio"]{margin-right:7px}
+.confidence{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.confidence-title{font-weight:700;font-size:.94rem;margin-bottom:5px}
+.confidence label{margin-right:15px;white-space:nowrap}
+.feedback{display:none;margin-top:12px;padding:10px 12px;border-radius:8px;background:#fff;border:1px solid var(--line)}
+.feedback.show{display:block}
+.correct-text{color:var(--ok)}.incorrect-text{color:var(--bad)}
+.symbol-box{border:1px solid #b9c8d7;background:#f4f8fb;border-radius:10px;padding:12px;margin:14px 0}
+.symbol-line{font-family:"Times New Roman",Cambria,serif;font-size:1.35rem;word-spacing:.55rem;margin:7px 0}
+.symbol-toolbar{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.symbol-btn{background:#e5eef5;color:#173b5c;min-width:46px;padding:9px 11px;font-family:"Times New Roman",Cambria,serif;font-size:1.2rem}
+.translation-input{width:100%;max-width:650px;padding:11px 12px;border:1px solid #9eabb8;border-radius:8px;font-family:"Times New Roman",Cambria,serif;font-size:1.2rem}
+.tt-problem{border:1px solid var(--line);border-radius:10px;padding:16px;margin:18px 0;background:#fff}
+.table-wrap{overflow-x:auto;margin:12px 0}
+table.truth-table{border-collapse:collapse;min-width:620px;width:100%;background:#fff}
+.truth-table th,.truth-table td{border:1px solid #9eabb8;text-align:center;padding:6px 7px;white-space:nowrap}
+.truth-table th{background:#eaf0f5;color:#173b5c}
+.truth-table th.final-col{background:#dbe9f2;border-bottom:3px solid var(--accent)}
+.truth-table td.assignment{background:#f7f9fb;font-weight:700}
+.truth-table select{min-width:50px;padding:5px;border:1px solid #8795a5;border-radius:5px;background:#fff}
+.analysis-box{border-top:1px dashed var(--line);margin-top:14px;padding-top:12px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 12px}
+button{border:none;border-radius:9px;padding:11px 15px;font-weight:700;cursor:pointer;font-size:.95rem}
+.primary{background:var(--accent);color:#fff}.secondary{background:#e8edf2;color:#1f2937}.danger{background:#f2e5e5;color:#7f1d1d}
+button:disabled{opacity:.5;cursor:not-allowed}
+.results{display:none;border:1px solid var(--line);border-radius:10px;padding:16px;margin:18px 0;background:var(--panel)}
+.results.show{display:block}.score-big{font-size:1.4rem;font-weight:800}
+.skill-row{display:grid;grid-template-columns:minmax(190px,1.5fr) 85px minmax(155px,1fr);gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #e2e7ed}
+.skill-row:last-child{border-bottom:none}.skill-label{font-weight:700}
+.needs{color:var(--bad);font-weight:700}.developing{color:var(--warn);font-weight:700}.strong{color:var(--ok);font-weight:700}
+#promptPanel{display:none;margin-top:20px}#promptPanel.show{display:block}
+textarea.prompt{width:100%;min-height:580px;padding:14px;border:1px solid var(--line);border-radius:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88rem;line-height:1.4;resize:vertical;background:#fbfcfe}
+.mini{font-size:.9rem;color:var(--muted)}
+.progress-shell{height:12px;background:#e7ebf0;border-radius:999px;overflow:hidden;margin:10px 0 4px}
+.progress-bar{height:100%;width:0;background:var(--accent2);transition:width .25s ease}
+@media(max-width:720px){h1{font-size:1.6rem}.skill-row{grid-template-columns:1fr}.confidence label{display:block;margin:6px 0}.wrap{padding:20px 12px 42px}}
+@media print{button,.symbol-toolbar,.toolbar,.progress-shell{display:none!important}.wrap{max-width:none;padding:0}.question,.tt-problem,details{break-inside:avoid}details>.details-body{display:block!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TL and Truth-Tables PromptForger</h1>
+  <p class="subtitle">Test 2 Review | Independent practice first. Targeted AI tutoring second.</p>
+
+  <div class="note">
+    <strong>How to use this worksheet:</strong> Answer every question before checking your work. For each item, report how confident you are. When you select <strong>Check My Work</strong>, the worksheet will lock your original answers, show feedback, and create a skill report. You may then generate a personalized ALEX prompt for additional practice.
+  </div>
+
+  <div class="progress-shell" aria-label="Completion progress"><div id="progressBar" class="progress-bar"></div></div>
+  <p id="progressText" class="mini">0% complete</p>
+
+  <details>
+    <summary>Reference Card and Copyable Symbols</summary>
+    <div class="details-body">
+      <div class="symbol-box">
+        <strong>Copyable TL symbols</strong>
+        <div class="symbol-line">~ &nbsp; &amp; &nbsp; ∨ &nbsp; ⊃ &nbsp; ≡ &nbsp; ( &nbsp; ) &nbsp; [ &nbsp; ] &nbsp; ∴</div>
+        <p class="mini">You may select and copy symbols from this line. The typed translation later in the worksheet also supplies buttons that insert these symbols for you.</p>
+      </div>
+      <div class="ref-grid">
+        <div class="ref-card"><h3>Negation: <span class="formula">~P</span></h3><p>Switch the truth-value of the embedded sentence.</p></div>
+        <div class="ref-card"><h3>Conjunction: <span class="formula">P &amp; Q</span></h3><p>True only when both conjuncts are true.</p></div>
+        <div class="ref-card"><h3>Disjunction: <span class="formula">P ∨ Q</span></h3><p>False only when both disjuncts are false. TL uses inclusive <em>or</em>.</p></div>
+        <div class="ref-card"><h3>Conditional: <span class="formula">P ⊃ Q</span></h3><p>False only when the antecedent is true and the consequent is false.</p></div>
+        <div class="ref-card"><h3>Biconditional: <span class="formula">P ≡ Q</span></h3><p>True only when the truth-values match.</p></div>
+      </div>
+    </div>
+  </details>
+
+  <div id="quiz"></div>
+
+  <section class="section" id="typedTranslationSection">
+    <h2 class="section-title">Translation Challenge</h2>
+    <div class="question" id="card-typed1">
+      <div class="qtext">Translate the following into TL: “If it is sunny and I feel energized, then we will jog.”</div>
+      <p class="mini">Sentence key: S = It is sunny. E = I feel energized. J = We will jog.</p>
+      <div class="symbol-toolbar" aria-label="TL symbol buttons">
+        <button type="button" class="symbol-btn" data-symbol="~">~</button>
+        <button type="button" class="symbol-btn" data-symbol="&amp;">&amp;</button>
+        <button type="button" class="symbol-btn" data-symbol="∨">∨</button>
+        <button type="button" class="symbol-btn" data-symbol="⊃">⊃</button>
+        <button type="button" class="symbol-btn" data-symbol="≡">≡</button>
+        <button type="button" class="symbol-btn" data-symbol="(">(</button>
+        <button type="button" class="symbol-btn" data-symbol=")">)</button>
+        <button type="button" class="symbol-btn" data-symbol="[">[</button>
+        <button type="button" class="symbol-btn" data-symbol="]">]</button>
+        <button type="button" class="symbol-btn" data-symbol="S">S</button>
+        <button type="button" class="symbol-btn" data-symbol="E">E</button>
+        <button type="button" class="symbol-btn" data-symbol="J">J</button>
+      </div>
+      <input id="typed1" class="translation-input" type="text" autocomplete="off" aria-label="Typed TL translation" placeholder="Build or paste your formula here" />
+      <div class="confidence">
+        <div class="confidence-title">How confident are you?</div>
+        <label><input type="radio" name="typed1-conf" value="Not sure" /> Not sure</label>
+        <label><input type="radio" name="typed1-conf" value="Pretty sure" /> Pretty sure</label>
+        <label><input type="radio" name="typed1-conf" value="Very sure" /> Very sure</label>
+      </div>
+      <div class="feedback" id="fb-typed1"></div>
+    </div>
+  </section>
+
+  <section class="section" id="truthTablesSection">
+    <h2 class="section-title">Truth-Table Analysis</h2>
+    <div class="note"><strong>Directions:</strong> The truth-value assignment columns are supplied. Complete every calculated column in scope order, then answer the analysis question. Use the same procedure from the course handout.</div>
+    <div id="truthTables"></div>
+  </section>
+
+  <div id="incompleteWarning" class="warning"></div>
+  <div class="toolbar">
+    <button id="checkBtn" class="primary" type="button">Check My Work</button>
+    <button id="alexBtn" class="secondary" type="button" disabled>Generate Personalized ALEX Prompt</button>
+    <button id="printBtn" class="secondary" type="button">Print or Save as PDF</button>
+    <button id="resetBtn" class="danger" type="button">Reset</button>
+  </div>
+
+  <div id="results" class="results">
+    <div id="scoreLine" class="score-big"></div>
+    <p class="mini">The skill report matters more than the overall percentage. It identifies the kind of practice that will help most.</p>
+    <div id="skillReport"></div>
+  </div>
+
+  <div id="promptPanel">
+    <h2>Your Personalized ALEX Prompt</h2>
+    <p>Copy this prompt into an LLM chat. It contains your results, the course knowledge base, and strict tutoring rules.</p>
+    <textarea id="promptText" class="prompt" readonly></textarea>
+    <div class="toolbar"><button id="copyBtn" class="primary" type="button">Copy Prompt</button></div>
+    <div id="copyStatus" class="mini"></div>
+  </div>
+</div>
+
+<script>
+const MC_ITEMS = [
+  {id:"q1",section:"Foundations",skill:"Foundations and truth functions",text:"Which description best captures truth-functional logic?",options:["A theory concerned only with the meanings of individual words","A logical theory that analyzes reasoning at the level of complete declarative sentences","A system for determining whether every premise is actually true","A method for translating all language into mathematics"],answer:1,explanation:"Truth-functional logic, also called propositional logic, analyzes reasoning at the level of complete declarative sentences or propositions."},
+  {id:"q2",section:"Foundations",skill:"Foundations and truth functions",text:"What is a proposition?",options:["Any grammatically complete sentence","The thought expressed by a declarative sentence","A symbol that joins two formulas","A question that can receive a true answer"],answer:1,explanation:"A proposition is the thought expressed by a declarative sentence."},
+  {id:"q3",section:"Foundations",skill:"Foundations and truth functions",text:"What is a truth-function?",options:["A sentence that happens to be true","A rule relating one set of truth-values to another set of truth-values","A method for proving that a premise is true","A list of every sentence constant"],answer:1,explanation:"A truth-function is a rule that determines the truth-value of a compound from the truth-values of its components."},
+  {id:"q4",section:"Foundations",skill:"Foundations and truth functions",text:"When is a conjunction true?",options:["Whenever at least one conjunct is true","Only when both conjuncts are true","Only when both conjuncts are false","Whenever the conjuncts have matching truth-values"],answer:1,explanation:"A conjunction is true only when both conjuncts are true."},
+  {id:"q5",section:"Foundations",skill:"Foundations and truth functions",text:"When is a disjunction false?",options:["Only when both disjuncts are false","Whenever exactly one disjunct is false","Only when both disjuncts are true","Whenever the disjuncts differ"],answer:0,explanation:"An inclusive disjunction is false only when both disjuncts are false."},
+  {id:"q6",section:"Foundations",skill:"Foundations and truth functions",text:"When is a conditional false?",options:["When the antecedent and consequent are both false","When the antecedent is false and the consequent is true","When the antecedent is true and the consequent is false","Whenever the antecedent and consequent differ"],answer:2,explanation:"A conditional is false only when its antecedent is true and its consequent is false."},
+  {id:"q7",section:"Foundations",skill:"Foundations and truth functions",text:"When is a biconditional true?",options:["Whenever at least one side is true","Only when both sides are true","Whenever the two sides have matching truth-values","Whenever the two sides have different truth-values"],answer:2,explanation:"A biconditional is true when both components have the same truth-value."},
+  {id:"q8",section:"Foundations",skill:"Foundations and truth functions",text:"What is logicism?",options:["The view that logic can be derived from mathematics","The view that mathematics can be derived from logic","The view that every true sentence is logically true","The view that ordinary language is already a formal language"],answer:1,explanation:"Logicism is the view that mathematics can be derived from logic."},
+  {id:"q8a",section:"Foundations",skill:"TL vocabulary and grammar",text:"What does TL stand for?",options:["Traditional Logic","Truth-functional Language","Term Logic","Translation Language"],answer:1,explanation:"TL stands for Truth-functional Language."},
+  {id:"q8b",section:"Foundations",skill:"TL vocabulary and grammar",text:"What is a formal language?",options:["Any language used in an academic setting","A language with a precisely specified vocabulary and rules of grammar","A language containing only mathematical equations","Any language that excludes ordinary English words"],answer:1,explanation:"A formal language has a precisely specified symbolic vocabulary and rules governing how its expressions may be constructed."},
+  {id:"q9",section:"Foundations",skill:"TL vocabulary and grammar",text:"Which item is a grouping indicator in TL?",options:["A","~","( )","⊃"],answer:2,explanation:"Parentheses and brackets are grouping indicators. They help demarcate the scope of operators."},
+  {id:"q10",section:"Foundations",skill:"TL vocabulary and grammar",text:"What is a well-formed formula (WFF) of TL?",options:["Any string that contains a sentence letter","A formula built from the vocabulary of TL according to its rules of grammar","Any formula whose truth-value is true","A formula containing exactly one main operator"],answer:1,explanation:"A WFF is constructed from TL vocabulary through the permitted grammatical rules."},
+
+  {id:"q11",section:"Argument Patterns",skill:"Valid argument forms",text:"Which argument form is shown?  P ⊃ Q; P; therefore Q",options:["Modus ponens","Modus tollens","Disjunctive syllogism","Affirming the consequent"],answer:0,explanation:"Modus ponens affirms the antecedent of a conditional and concludes the consequent."},
+  {id:"q12",section:"Argument Patterns",skill:"Valid argument forms",text:"Which argument form is shown?  P ⊃ Q; ~Q; therefore ~P",options:["Denying the antecedent","Modus ponens","Modus tollens","Not both"],answer:2,explanation:"Modus tollens denies the consequent and concludes the negation of the antecedent."},
+  {id:"q13",section:"Argument Patterns",skill:"Valid argument forms",text:"Which argument form is shown?  P ∨ Q; ~P; therefore Q",options:["Disjunctive syllogism","Affirming the consequent","Modus tollens","Denying the antecedent"],answer:0,explanation:"A disjunctive syllogism denies one disjunct and concludes the other."},
+  {id:"q14",section:"Argument Patterns",skill:"Valid argument forms",text:"Which argument form is shown?  ~(P & Q); P; therefore ~Q",options:["Modus ponens","Not both","Denying the antecedent","Disjunctive syllogism"],answer:1,explanation:"The not-both form begins with the negation of a conjunction, affirms one conjunct, and denies the other."},
+  {id:"q15",section:"Argument Patterns",skill:"Formal fallacies",text:"Which formal fallacy is shown?  P ⊃ Q; Q; therefore P",options:["Affirming the consequent","Denying the antecedent","Modus ponens","Modus tollens"],answer:0,explanation:"The consequent is affirmed and the antecedent is then inferred. That form is invalid."},
+  {id:"q16",section:"Argument Patterns",skill:"Formal fallacies",text:"Which formal fallacy is shown?  P ⊃ Q; ~P; therefore ~Q",options:["Affirming the consequent","Denying the antecedent","Disjunctive syllogism","Not both"],answer:1,explanation:"The antecedent is denied and the negation of the consequent is then inferred. That form is invalid."},
+
+  {id:"q17",section:"TL Syntax",skill:"WFF recognition",text:"Which of the following is a WFF of TL?",formula:true,options:["R & T~","(U ∨ O T]","⊃~~G","~(R & T)"],answer:3,explanation:"~(R & T) is built according to the rules of TL. The other strings contain misplaced or missing symbols."},
+  {id:"q18",section:"TL Syntax",skill:"WFF recognition",text:"Which of the following is NOT a WFF of TL?",formula:true,options:["~~C","B ⊃ [H ⊃ (A ∨ B)]","(~F ∨ ~~B) ⊃","(B ∨ C) ≡ ~(C & ~A)"],answer:2,explanation:"(~F ∨ ~~B) ⊃ ends with a binary connective and lacks a consequent."},
+  {id:"q19",section:"TL Syntax",skill:"Main operator and scope",text:"What is the main operator in ~[(O ∨ I) ⊃ (H ≡ P)]?",formula:true,options:["~","∨","⊃","≡"],answer:0,explanation:"The initial tilde has scope over the entire conditional, so it is the main operator."},
+  {id:"q20",section:"TL Syntax",skill:"Main operator and scope",text:"What is the main operator in (([V ≡ J] & [D ≡ E]) ∨ [K ⊃ C]) ⊃ A?",formula:true,options:["The first ≡","&","∨","The final ⊃"],answer:3,explanation:"The final horseshoe joins the entire left-hand formula to A and therefore has the largest scope."},
+
+  {id:"q21",section:"Translations",skill:"English to TL translation",text:"A = Ava attends. B = Ben attends. Which formula translates “Neither Ava nor Ben attends”?",formula:true,options:["~A ∨ ~B","~(A & B)","~A & ~B","A ≡ B"],answer:2,explanation:"Neither...nor denies both component sentences: ~A & ~B. The equivalent formula ~(A ∨ B) would also express this claim."},
+  {id:"q22",section:"Translations",skill:"English to TL translation",text:"P = Priya graduates. R = Priya completes the requirements. Which formula translates “Priya graduates only if she completes the requirements”?",formula:true,options:["R ⊃ P","P ⊃ R","P ≡ R","~R ⊃ P"],answer:1,explanation:"Only if introduces a necessary condition. Graduating implies completing the requirements: P ⊃ R."},
+  {id:"q23",section:"Translations",skill:"English to TL translation",text:"E = Elaine orders soup. J = Jerry orders soup. G = George orders soup. N = Newman orders soup. Which formula translates: “If Elaine and Jerry order soup, then either George or Newman orders soup”?",formula:true,options:["E & (J ⊃ G) ∨ N","(E & J) ⊃ (G ∨ N)","(E ⊃ J) & (G ∨ N)","(E & J) ≡ (G ∨ N)"],answer:1,explanation:"The conjunction E & J forms the antecedent; G ∨ N forms the consequent."},
+  {id:"q24",section:"Translations",skill:"English to TL translation",text:"A = Ana attends. B = Ben attends. Which formula translates the exclusive claim “Either Ana or Ben attends, but not both”?",formula:true,options:["A ∨ B","(A ∨ B) & ~(A & B)","~A & ~B","A ≡ B"],answer:1,explanation:"Exclusive or requires the disjunction and also denies that both disjuncts are true."},
+
+  {id:"q25",section:"Truth-Table Procedure",skill:"Truth-table procedure",text:"How many rows should a truth table contain when a formula has three sentence constants, including the header row?",options:["6","8","9","12"],answer:2,explanation:"There are 2³ = 8 truth-value assignments, plus one header row, for a total of 9 rows."},
+  {id:"q26",section:"Truth-Table Procedure",skill:"Truth-table procedure",text:"Which operator identifies the final column of a compound formula?",options:["The leftmost operator","The operator with the smallest scope","The main operator","The first binary operator"],answer:2,explanation:"The main operator has the largest scope, and its column is the final column."},
+  {id:"q27",section:"Truth-Table Procedure",skill:"Semantic analysis",text:"What makes a set of sentences truth-functionally consistent?",options:["Every sentence has an all-T final column","At least one row makes every sentence in the set true","Every row makes at least one sentence true","The sentences have matching final columns"],answer:1,explanation:"A set is consistent if there is at least one row on which all its members are true."},
+  {id:"q28",section:"Truth-Table Procedure",skill:"Semantic analysis",text:"What makes an argument invalid on a truth table?",options:["At least one row has a false premise","At least one row has a false conclusion","At least one row has all true premises and a false conclusion","The premises and conclusion have different main operators"],answer:2,explanation:"A row with all true premises and a false conclusion is a counterexample to validity."}
+];
+
+const TABLE_PROBLEMS = [
+  {
+    id:"tt1",title:"A. Sentence Analysis",skill:"Truth-table construction",
+    prompt:"Complete the table for ~(P & Q) ∨ R, then classify the sentence.",
+    vars:["P","Q","R"],
+    rows:[[1,1,1],[1,1,0],[1,0,1],[1,0,0],[0,1,1],[0,1,0],[0,0,1],[0,0,0]],
+    cols:[
+      {label:"P & Q",fn:r=>r[0]&&r[1]},
+      {label:"~(P & Q)",fn:r=>!(r[0]&&r[1])},
+      {label:"~(P & Q) ∨ R",fn:r=>!(r[0]&&r[1])||r[2],final:true}
+    ],
+    analysis:{text:"The sentence is:",options:["Truth-functionally true","Truth-functionally false","Truth-functionally indeterminate"],answer:2,explanation:"Its final column contains both Ts and Fs, so it is truth-functionally indeterminate."}
+  },
+  {
+    id:"tt2",title:"B. Equivalence",skill:"Truth-table construction",
+    prompt:"Complete the final columns for {P ⊃ Q, ~P ∨ Q}, then assess equivalence.",
+    vars:["P","Q"],rows:[[1,1],[1,0],[0,1],[0,0]],
+    cols:[
+      {label:"P ⊃ Q",fn:r=>!r[0]||r[1],final:true},
+      {label:"~P",fn:r=>!r[0]},
+      {label:"~P ∨ Q",fn:r=>!r[0]||r[1],final:true}
+    ],
+    analysis:{text:"The two sentences are:",options:["Truth-functionally equivalent","Not truth-functionally equivalent"],answer:0,explanation:"The two final columns match on every row, so the sentences are truth-functionally equivalent."}
+  },
+  {
+    id:"tt3",title:"C. Consistency",skill:"Truth-table construction",
+    prompt:"Complete the final columns for {P ∨ Q, ~P, ~Q}, then assess consistency.",
+    vars:["P","Q"],rows:[[1,1],[1,0],[0,1],[0,0]],
+    cols:[
+      {label:"P ∨ Q",fn:r=>r[0]||r[1],final:true},
+      {label:"~P",fn:r=>!r[0],final:true},
+      {label:"~Q",fn:r=>!r[1],final:true}
+    ],
+    analysis:{text:"The set of sentences is:",options:["Truth-functionally consistent","Truth-functionally inconsistent"],answer:1,explanation:"No row makes all three sentences true simultaneously, so the set is inconsistent."}
+  },
+  {
+    id:"tt4",title:"D. Validity",skill:"Truth-table construction",
+    prompt:"Complete the final columns for P ∨ Q; ~P; therefore ~Q, then assess validity.",
+    vars:["P","Q"],rows:[[1,1],[1,0],[0,1],[0,0]],
+    cols:[
+      {label:"Premise 1: P ∨ Q",fn:r=>r[0]||r[1],final:true},
+      {label:"Premise 2: ~P",fn:r=>!r[0],final:true},
+      {label:"Conclusion: ~Q",fn:r=>!r[1],final:true}
+    ],
+    analysis:{text:"The argument is:",options:["Valid","Invalid"],answer:1,explanation:"When P is false and Q is true, both premises are true and the conclusion is false. That row is a counterexample, so the argument is invalid."}
+  }
+];
+
+let checked=false;
+const records=[];
+
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));}
+function tf(v){return v?"T":"F";}
+function choice(name){const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:null;}
+
+function renderMC(){
+  const root=document.getElementById("quiz");let section="";
+  MC_ITEMS.forEach((q,idx)=>{
+    if(q.section!==section){section=q.section;const s=document.createElement("section");s.className="section";s.innerHTML=`<h2 class="section-title">${esc(section)}</h2>`;root.appendChild(s);}
+    const parent=root.lastElementChild;
+    const card=document.createElement("div");card.className="question";card.id=`card-${q.id}`;
+    const opts=q.options.map((o,i)=>`<label class="${q.formula?"formula":""}"><input type="radio" name="${q.id}" value="${i}" /> ${esc(o)}</label>`).join("");
+    card.innerHTML=`<div class="qtext">${idx+1}. ${esc(q.text)}</div><div class="options">${opts}</div>
+      <div class="confidence"><div class="confidence-title">How confident are you?</div>
+      <label><input type="radio" name="${q.id}-conf" value="Not sure" /> Not sure</label>
+      <label><input type="radio" name="${q.id}-conf" value="Pretty sure" /> Pretty sure</label>
+      <label><input type="radio" name="${q.id}-conf" value="Very sure" /> Very sure</label></div>
+      <div class="feedback" id="fb-${q.id}"></div>`;
+    parent.appendChild(card);
+  });
+}
+
+function renderTables(){
+  const root=document.getElementById("truthTables");
+  TABLE_PROBLEMS.forEach(p=>{
+    const box=document.createElement("div");box.className="tt-problem";box.id=`card-${p.id}`;
+    const headers=[...p.vars.map(v=>`<th>${esc(v)}</th>`),...p.cols.map(c=>`<th class="${c.final?"final-col":""}">${esc(c.label)}</th>`)].join("");
+    const body=p.rows.map((r,ri)=>`<tr>${r.map(v=>`<td class="assignment">${tf(v)}</td>`).join("")}${p.cols.map((c,ci)=>`<td><select id="${p.id}-r${ri}-c${ci}" aria-label="${esc(p.title)} row ${ri+1} ${esc(c.label)}"><option value="">-</option><option value="T">T</option><option value="F">F</option></select></td>`).join("")}</tr>`).join("");
+    const opts=p.analysis.options.map((o,i)=>`<label><input type="radio" name="${p.id}-analysis" value="${i}" /> ${esc(o)}</label>`).join("");
+    box.innerHTML=`<h3>${esc(p.title)}</h3><p class="qtext">${esc(p.prompt)}</p>
+      <div class="table-wrap"><table class="truth-table"><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table></div>
+      <div class="analysis-box"><div class="qtext">${esc(p.analysis.text)}</div><div class="options">${opts}</div></div>
+      <div class="confidence"><div class="confidence-title">How confident are you in this table and judgment?</div>
+      <label><input type="radio" name="${p.id}-conf" value="Not sure" /> Not sure</label>
+      <label><input type="radio" name="${p.id}-conf" value="Pretty sure" /> Pretty sure</label>
+      <label><input type="radio" name="${p.id}-conf" value="Very sure" /> Very sure</label></div>
+      <div class="feedback" id="fb-${p.id}"></div>`;
+    root.appendChild(box);
+  });
+}
+
+function normalizeFormula(s){
+  return s.toUpperCase().replace(/\s+/g,"").replace(/[\[\{]/g,"(").replace(/[\]\}]/g,")").replace(/<=>|<->/g,"≡").replace(/=>|->/g,"⊃");
+}
+function stripOuter(s){
+  let changed=true;
+  while(changed&&s.startsWith("(")&&s.endsWith(")")){
+    changed=false;let depth=0,valid=true;
+    for(let i=0;i<s.length;i++){if(s[i]==="(")depth++;if(s[i]===")")depth--;if(depth===0&&i<s.length-1){valid=false;break;}}
+    if(valid){s=s.slice(1,-1);changed=true;}
+  }
+  return s;
+}
+function typedCorrect(){return stripOuter(normalizeFormula(document.getElementById("typed1").value))==="(S&E)⊃J";}
+
+function tableComplete(p){
+  const cells=p.rows.every((r,ri)=>p.cols.every((c,ci)=>document.getElementById(`${p.id}-r${ri}-c${ci}`).value));
+  return cells&&choice(`${p.id}-analysis`)!==null&&choice(`${p.id}-conf`)!==null;
+}
+function allComplete(){
+  const mc=MC_ITEMS.every(q=>choice(q.id)!==null&&choice(`${q.id}-conf`)!==null);
+  const typed=document.getElementById("typed1").value.trim()&&choice("typed1-conf")!==null;
+  return mc&&typed&&TABLE_PROBLEMS.every(tableComplete);
+}
+
+function updateProgress(){
+  let done=0,total=0;
+  MC_ITEMS.forEach(q=>{total+=2;if(choice(q.id)!==null)done++;if(choice(`${q.id}-conf`)!==null)done++;});
+  total+=2;if(document.getElementById("typed1").value.trim())done++;if(choice("typed1-conf")!==null)done++;
+  TABLE_PROBLEMS.forEach(p=>{p.rows.forEach((r,ri)=>p.cols.forEach((c,ci)=>{total++;if(document.getElementById(`${p.id}-r${ri}-c${ci}`).value)done++;}));total+=2;if(choice(`${p.id}-analysis`)!==null)done++;if(choice(`${p.id}-conf`)!==null)done++;});
+  const pct=Math.round(done/total*100);document.getElementById("progressBar").style.width=`${pct}%`;document.getElementById("progressText").textContent=`${pct}% complete`;
+}
+
+function addSkill(map,name,earned,possible,highError=false){
+  if(!map[name])map[name]={earned:0,possible:0,highErrors:0};
+  map[name].earned+=earned;map[name].possible+=possible;if(highError)map[name].highErrors++;
+}
+
+function checkWork(){
+  const warn=document.getElementById("incompleteWarning");warn.classList.remove("show");
+  if(!allComplete()){warn.textContent="Please complete every answer, truth-table cell, analysis question, and confidence rating before checking your work.";warn.classList.add("show");warn.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  checked=true;records.length=0;const skills={};let earned=0,possible=0;
+
+  MC_ITEMS.forEach(q=>{
+    const ans=Number(choice(q.id)),conf=choice(`${q.id}-conf`),ok=ans===q.answer;earned+=ok?1:0;possible++;
+    addSkill(skills,q.skill,ok?1:0,1,!ok&&conf==="Very sure");
+    records.push({skill:q.skill,prompt:q.text,answer:q.options[ans],correct:q.options[q.answer],confidence:conf,ok,feedback:q.explanation});
+    const card=document.getElementById(`card-${q.id}`);card.classList.add(ok?"correct":"incorrect");
+    const fb=document.getElementById(`fb-${q.id}`);fb.classList.add("show");
+    fb.innerHTML=ok?`<strong class="correct-text">Correct.</strong> ${esc(q.explanation)}`:`<strong class="incorrect-text">Not quite.</strong> You chose <strong>${esc(q.options[ans])}</strong>. The correct answer is <strong>${esc(q.options[q.answer])}</strong>. ${esc(q.explanation)}`;
+    card.querySelectorAll("input").forEach(x=>x.disabled=true);
+  });
+
+  const tInput=document.getElementById("typed1"),tConf=choice("typed1-conf"),tOk=typedCorrect();earned+=tOk?1:0;possible++;
+  addSkill(skills,"English to TL translation",tOk?1:0,1,!tOk&&tConf==="Very sure");
+  records.push({skill:"English to TL translation",prompt:"If it is sunny and I feel energized, then we will jog.",answer:tInput.value,correct:"(S & E) ⊃ J",confidence:tConf,ok:tOk,feedback:"The conjunction S & E forms the antecedent of the conditional; J is the consequent."});
+  const tCard=document.getElementById("card-typed1"),tFb=document.getElementById("fb-typed1");tCard.classList.add(tOk?"correct":"incorrect");tFb.classList.add("show");
+  tFb.innerHTML=tOk?`<strong class="correct-text">Correct.</strong> The conjunction S &amp; E forms the antecedent; J is the consequent.`:`<strong class="incorrect-text">Not quite.</strong> A correct translation is <strong class="formula">(S &amp; E) ⊃ J</strong>. The conjunction forms the antecedent of the conditional.`;
+  tInput.disabled=true;tCard.querySelectorAll("input").forEach(x=>x.disabled=true);document.querySelectorAll(".symbol-btn").forEach(x=>x.disabled=true);
+
+  TABLE_PROBLEMS.forEach(p=>{
+    let cellRight=0,cellTotal=0;const wrongCells=[];
+    p.rows.forEach((r,ri)=>p.cols.forEach((c,ci)=>{
+      const el=document.getElementById(`${p.id}-r${ri}-c${ci}`),expected=tf(c.fn(r)),ok=el.value===expected;cellTotal++;if(ok)cellRight++;else wrongCells.push(`row ${ri+1}, ${c.label}: should be ${expected}`);el.disabled=true;
+    }));
+    const analysisAns=Number(choice(`${p.id}-analysis`)),analysisOk=analysisAns===p.analysis.answer,conf=choice(`${p.id}-conf`);
+    earned+=cellRight+(analysisOk?1:0);possible+=cellTotal+1;
+    addSkill(skills,"Truth-table construction",cellRight,cellTotal,cellRight<cellTotal&&conf==="Very sure");
+    addSkill(skills,"Semantic analysis",analysisOk?1:0,1,!analysisOk&&conf==="Very sure");
+    records.push({skill:"Truth-table construction",prompt:p.prompt,answer:`${cellRight}/${cellTotal} calculated cells correct; judgment: ${p.analysis.options[analysisAns]}`,correct:`${cellTotal}/${cellTotal} calculated cells correct; judgment: ${p.analysis.options[p.analysis.answer]}`,confidence:conf,ok:cellRight===cellTotal&&analysisOk,feedback:p.analysis.explanation+(wrongCells.length?` First cell issues: ${wrongCells.slice(0,3).join("; ")}.`:"")});
+    const card=document.getElementById(`card-${p.id}`),fb=document.getElementById(`fb-${p.id}`);const allOk=cellRight===cellTotal&&analysisOk;card.classList.add(allOk?"correct":"incorrect");fb.classList.add("show");
+    fb.innerHTML=allOk?`<strong class="correct-text">Correct table and judgment.</strong> ${esc(p.analysis.explanation)}`:`<strong class="incorrect-text">Review needed.</strong> You completed ${cellRight}/${cellTotal} calculated cells correctly. The correct judgment is <strong>${esc(p.analysis.options[p.analysis.answer])}</strong>. ${esc(p.analysis.explanation)}${wrongCells.length?`<br><span class="mini">Check: ${esc(wrongCells.slice(0,4).join("; "))}${wrongCells.length>4?"; and additional cells":""}.</span>`:""}`;
+    card.querySelectorAll("input").forEach(x=>x.disabled=true);
+  });
+
+  const pct=Math.round(earned/possible*100);document.getElementById("scoreLine").textContent=`Overall: ${earned}/${possible} points (${pct}%)`;
+  const report=document.getElementById("skillReport");report.innerHTML="";
+  Object.entries(skills).forEach(([name,s])=>{const ratio=s.earned/s.possible;let label="Needs review",cls="needs";if(ratio>=.85){label="Strong";cls="strong";}else if(ratio>=.65){label="Developing";cls="developing";}if(s.highErrors)label+=` | ${s.highErrors} high-confidence error${s.highErrors>1?"s":""}`;report.innerHTML+=`<div class="skill-row"><div class="skill-label">${esc(name)}</div><div>${s.earned}/${s.possible}</div><div class="${cls}">${esc(label)}</div></div>`;});
+  document.getElementById("results").classList.add("show");document.getElementById("checkBtn").disabled=true;document.getElementById("alexBtn").disabled=false;document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function buildPrompt(){
+  if(!checked)return;
+  const missed=records.filter(r=>!r.ok),fragile=records.filter(r=>r.ok&&r.confidence==="Not sure");
+  const skillMap={};records.forEach(r=>{if(!skillMap[r.skill])skillMap[r.skill]={right:0,total:0};skillMap[r.skill].total++;if(r.ok)skillMap[r.skill].right++;});
+  const skillText=Object.entries(skillMap).map(([k,v])=>`- ${k}: ${v.right}/${v.total} tasks fully correct`).join("\n");
+  const missedText=missed.length?missed.map((r,i)=>`${i+1}. Skill: ${r.skill}\n   Task: ${r.prompt}\n   My response: ${r.answer}\n   Correct result: ${r.correct}\n   Confidence: ${r.confidence}\n   Course feedback: ${r.feedback}`).join("\n\n"):"None. I completed every task correctly.";
+  const fragileText=fragile.length?fragile.map((r,i)=>`${i+1}. ${r.prompt}\n   Correct result: ${r.correct}`).join("\n\n"):"None identified.";
+
+  const prompt=`ROLE
+
+You are a concise, adaptive tutor for an introductory Symbolic Logic course. I completed an independent Test 2 PromptForger covering truth-functional logic, valid argument forms, TL syntax, translation, and truth-table analysis.
+
+Use the KNOWLEDGE BASE below as authoritative. Use the course's terminology and symbols. Do not substitute notation from another textbook.
+
+==================================================
+MY RESULTS
+==================================================
+
+Skill summary:
+${skillText}
+
+ITEMS OR PROBLEMS I MISSED:
+${missedText}
+
+CORRECT RESPONSES WITH LOW CONFIDENCE:
+${fragileText}
+
+==================================================
+RULES OF ENGAGEMENT
+==================================================
+
+1. Ask only ONE question at a time and wait for my answer.
+2. Begin with the skill that most needs review. Prioritize any mistake I made with high confidence.
+3. Do not simply repeat the missed item. First diagnose the misconception with a short question.
+4. Do not reveal an answer immediately. Ask me to reason, and provide one small hint if needed.
+5. Keep explanations concise and use the course vocabulary below.
+6. When writing TL, use these symbols: ~  &  ∨  ⊃  ≡  ( ) [ ]  ∴
+7. For translations, provide a sentence key and give me easy access to any symbols I need by repeating the symbol line.
+8. For truth tables, require me to follow the course sequence: constants, rows, assignments, final columns, smallest scope, main operator, review, semantic judgment.
+9. Do not calculate an entire truth table for me. Work through one step or one disputed row at a time.
+10. After targeted instruction, give me one new isomorphic problem without the answer.
+
+==================================================
+KNOWLEDGE BASE
+==================================================
+
+TRUTH-FUNCTIONAL LOGIC
+
+Truth-functional Logic, aka Propositional Logic, breaks reasoning down to the level of complete declarative sentences, aka propositions.
+
+A proposition is the thought expressed by a declarative sentence.
+
+A truth-function is a rule that relates one set of truth-values to another set of truth-values.
+
+Negation (~): Switch the truth-value of the embedded sentence.
+
+Conjunction (&): True only when both conjuncts are true.
+
+Disjunction (∨): False only when both disjuncts are false. TL uses inclusive or.
+
+Conditional (⊃): False only when the antecedent is true and the consequent is false.
+
+Biconditional (≡): True only when the truth-values match.
+
+TL SYNTAX
+
+Sentence constants: A, B, C, and so on.
+
+Unary connective: ~
+
+Binary connectives: &, ∨, ⊃, ≡
+
+Grouping indicators: parentheses and brackets.
+
+The scope of an operator is the operator itself and what it applies to or joins.
+
+The main operator is the connective with the largest scope.
+
+A well-formed formula is built from the vocabulary of TL according to its rules of grammar.
+
+VALID ARGUMENT FORMS
+
+Modus ponens: P ⊃ Q; P; therefore Q.
+
+Modus tollens: P ⊃ Q; ~Q; therefore ~P.
+
+Disjunctive syllogism: P ∨ Q; ~P; therefore Q.
+
+Not both: ~(P & Q); P; therefore ~Q.
+
+FORMAL FALLACIES
+
+Affirming the consequent: P ⊃ Q; Q; therefore P.
+
+Denying the antecedent: P ⊃ Q; ~P; therefore ~Q.
+
+TRUTH-TABLE PROCEDURE
+
+1. Write the sentence constants in alphabetical order and the TL formula or formulas.
+2. Draw a table with enough columns and rows. With x sentence constants, there are 2^x truth-value assignments plus the header row.
+3. Fill in all possible truth-value assignments.
+4. Identify the final column for every sentence. The main operator indicates the final column of a compound formula; a sentence constant is its own final column.
+5. Calculate operators with the smallest scope first. If tied, calculate the leftmost operator first.
+6. Calculate the main operator or operators.
+7. Review the work.
+
+SEMANTIC TESTS
+
+Sentence: all Ts means truth-functionally true; all Fs means truth-functionally false; a mixture means truth-functionally indeterminate.
+
+Validity: an argument is invalid if any row has all true premises and a false conclusion. If no such row exists, it is valid.
+
+Equivalence: formulas are equivalent when their final columns match on every row.
+
+Consistency: a set is consistent when at least one row makes every sentence in the set true. Otherwise, it is inconsistent.
+
+==================================================
+ENDING SEQUENCE
+==================================================
+
+After the new isomorphic problem:
+1. Ask me to explain the decisive rule in my own words.
+2. Tell me whether the skill now appears secure, developing, or still in need of review.
+3. Give one concrete recommendation for studying before Test 2.
+4. End the exchange. Do not offer additional tasks unless I request them.
+
+Begin by briefly identifying the first skill we should address, then ask one diagnostic question.`;
+
+  document.getElementById("promptText").value=prompt;document.getElementById("promptPanel").classList.add("show");document.getElementById("promptPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+async function copyPrompt(){
+  const t=document.getElementById("promptText"),status=document.getElementById("copyStatus");
+  try{await navigator.clipboard.writeText(t.value);status.textContent="Prompt copied.";}
+  catch(e){t.focus();t.select();const ok=document.execCommand("copy");status.textContent=ok?"Prompt copied.":"Select the prompt and copy it manually.";}
+}
+
+function insertSymbol(sym){
+  const el=document.getElementById("typed1");if(el.disabled)return;const start=el.selectionStart??el.value.length,end=el.selectionEnd??el.value.length;el.value=el.value.slice(0,start)+sym+el.value.slice(end);el.focus();el.selectionStart=el.selectionEnd=start+sym.length;updateProgress();
+}
+
+function resetAll(){
+  if(!confirm("Reset the entire worksheet and erase all responses?"))return;location.reload();
+}
+
+renderMC();renderTables();updateProgress();
+document.addEventListener("change",updateProgress);document.getElementById("typed1").addEventListener("input",updateProgress);
+document.querySelectorAll(".symbol-btn").forEach(b=>b.addEventListener("click",()=>insertSymbol(b.dataset.symbol)));
+document.getElementById("checkBtn").addEventListener("click",checkWork);
+document.getElementById("alexBtn").addEventListener("click",buildPrompt);
+document.getElementById("copyBtn").addEventListener("click",copyPrompt);
+document.getElementById("printBtn").addEventListener("click",()=>window.print());
+document.getElementById("resetBtn").addEventListener("click",resetAll);
+</script>
+</body>
+</html>
