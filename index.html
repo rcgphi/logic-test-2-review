@@ -34,6 +34,7 @@ details[open] summary{border-bottom:1px solid var(--line);border-radius:10px 10p
 .question{border:1px solid var(--line);border-radius:10px;padding:15px;margin:12px 0;background:#fff}
 .question.correct,.tt-problem.correct{border-color:#82bf97;background:var(--okbg)}
 .question.incorrect,.tt-problem.incorrect{border-color:#d99a9a;background:var(--badbg)}
+.question.needs-attention,.tt-problem.needs-attention{outline:3px solid #e4bd57;outline-offset:2px}
 .qtext{font-weight:700;margin-bottom:10px}
 .formula{font-family:"Times New Roman",Cambria,serif;font-size:1.18rem;letter-spacing:.01em}
 .options label{display:block;padding:7px 8px;border-radius:7px;cursor:pointer}
@@ -83,7 +84,7 @@ textarea.prompt{width:100%;min-height:580px;padding:14px;border:1px solid var(--
   <p class="subtitle">Test 2 Review | Independent practice first. Targeted AI tutoring second.</p>
 
   <div class="note">
-    <strong>How to use this worksheet:</strong> Answer every question before checking your work. For each item, report how confident you are. When you select <strong>Check My Work</strong>, the worksheet will lock your original answers, show feedback, and create a skill report. You may then generate a personalized ALEX prompt for additional practice.
+    <strong>How to use this worksheet:</strong> Answer every question before checking your work. Confidence ratings are optional, but reporting them will make your personalized feedback more useful. When you select <strong>Check My Answers</strong>, the worksheet will lock your original answers, show feedback, and create a skill report. You may then generate a personalized ALEX prompt for additional practice.
   </div>
 
   <div class="progress-shell" aria-label="Completion progress"><div id="progressBar" class="progress-bar"></div></div>
@@ -141,13 +142,26 @@ textarea.prompt{width:100%;min-height:580px;padding:14px;border:1px solid var(--
 
   <section class="section" id="truthTablesSection">
     <h2 class="section-title">Truth-Table Analysis</h2>
-    <div class="note"><strong>Directions:</strong> The truth-value assignment columns are supplied. Complete every calculated column in scope order, then answer the analysis question. Use the same procedure from the course handout.</div>
+    <div class="note"><strong>Directions:</strong> The truth-value assignment columns are supplied. Complete every calculated column, then answer the analysis question. Use the same truth-functions and semantic tests from the course handout.</div>
+    <details open>
+      <summary>How these digital truth tables work</summary>
+      <div class="details-body">
+        <p>These tables are arranged differently from the handwritten matrices used in class. In a handwritten matrix, the operators remain in their original positions within the formula, so you must determine the order of the computations yourself. In these digital tables, each calculated column is labeled with the complete subformula it represents, and the calculated columns are already arranged from the first computation to the last.</p>
+        <ol>
+          <li>Read the supplied truth-value assignments on the left.</li>
+          <li>Complete the first calculated column using the appropriate truth-function.</li>
+          <li>Move one calculated column to the right at a time. A later column may use a result you already calculated.</li>
+          <li>The tinted column is the final column. Use it to answer the analysis question beneath the table.</li>
+        </ol>
+        <p><strong>Example:</strong> For <span class="formula">~(P &amp; Q) ∨ R</span>, the digital columns ask you to calculate <span class="formula">P &amp; Q</span> first, then <span class="formula">~(P &amp; Q)</span>, and finally <span class="formula">~(P &amp; Q) ∨ R</span>. The separate computation-order exercises above test whether you can determine that sequence for yourself.</p>
+      </div>
+    </details>
     <div id="truthTables"></div>
   </section>
 
   <div id="incompleteWarning" class="warning"></div>
   <div class="toolbar">
-    <button id="checkBtn" class="primary" type="button">Check My Work</button>
+    <button id="checkBtn" class="primary" type="button">Check My Answers</button>
     <button id="alexBtn" class="secondary" type="button" disabled>Generate Personalized ALEX Prompt</button>
     <button id="printBtn" class="secondary" type="button">Print or Save as PDF</button>
     <button id="resetBtn" class="danger" type="button">Reset</button>
@@ -202,8 +216,13 @@ const MC_ITEMS = [
 
   {id:"q25",section:"Truth-Table Procedure",skill:"Truth-table procedure",text:"How many rows should a truth table contain when a formula has three sentence constants, including the header row?",options:["6","8","9","12"],answer:2,explanation:"There are 2³ = 8 truth-value assignments, plus one header row, for a total of 9 rows."},
   {id:"q26",section:"Truth-Table Procedure",skill:"Truth-table procedure",text:"Which operator identifies the final column of a compound formula?",options:["The leftmost operator","The operator with the smallest scope","The main operator","The first binary operator"],answer:2,explanation:"The main operator has the largest scope, and its column is the final column."},
-  {id:"q27",section:"Truth-Table Procedure",skill:"Semantic analysis",text:"What makes a set of sentences truth-functionally consistent?",options:["Every sentence has an all-T final column","At least one row makes every sentence in the set true","Every row makes at least one sentence true","The sentences have matching final columns"],answer:1,explanation:"A set is consistent if there is at least one row on which all its members are true."},
-  {id:"q28",section:"Truth-Table Procedure",skill:"Semantic analysis",text:"What makes an argument invalid on a truth table?",options:["At least one row has a false premise","At least one row has a false conclusion","At least one row has all true premises and a false conclusion","The premises and conclusion have different main operators"],answer:2,explanation:"A row with all true premises and a false conclusion is a counterexample to validity."}
+  {id:"q27",section:"Truth-Table Procedure",skill:"Semantic analysis",text:"What makes a set of sentences truth-functionally consistent?",options:["Every sentence has an all-T final column","There is at least one row (or one truth-value assignment) in which all the sentences in the set are true","Every row makes at least one sentence true","The sentences have matching final columns"],answer:1,explanation:"A set of sentences is truth-functionally consistent when there is at least one row—or one truth-value assignment—in which all the sentences in the set are true."},
+  {id:"q28",section:"Truth-Table Procedure",skill:"Semantic analysis",text:"What makes an argument invalid on a truth table?",options:["At least one row has a false premise","At least one row has a false conclusion","At least one row has all true premises and a false conclusion","The premises and conclusion have different main operators"],answer:2,explanation:"A row with all true premises and a false conclusion is a counterexample to validity."},
+
+  {id:"q31",section:"Computation Order",skill:"Computation order",text:"For the formula ~(P & Q), which operation should be completed first?",formula:true,options:["Calculate the negation ~","Calculate P & Q","Calculate both operators at the same time","Begin with the final column"],answer:1,explanation:"The conjunction has the smaller scope. Calculate P & Q first; then negate the resulting column."},
+  {id:"q32",section:"Computation Order",skill:"Computation order",text:"Which sequence gives the correct order of computation for (P ∨ Q) & (R ⊃ S)?",formula:true,options:["R ⊃ S; then P ∨ Q; then the main conjunction","P ∨ Q; then R ⊃ S; then the main conjunction","The main conjunction; then P ∨ Q; then R ⊃ S","P ∨ Q; then the main conjunction; then R ⊃ S"],answer:1,explanation:"The disjunction and conditional have equally small scopes, so calculate the leftmost one first. Calculate the main conjunction last."},
+  {id:"q33",section:"Computation Order",skill:"Computation order",text:"Which sequence gives the correct order of computation for (P & ~Q) ∨ R?",formula:true,options:["P & ~Q; then ~Q; then the main disjunction","~Q; then P & ~Q; then the main disjunction","~Q; then the main disjunction; then P & ~Q","The main disjunction; then ~Q; then P & ~Q"],answer:1,explanation:"The negation has the smallest scope. After calculating ~Q, calculate the conjunction and then the main disjunction."},
+  {id:"q34",section:"Computation Order",skill:"Computation order",text:"Which sequence gives the correct order of computation for ~[(P ∨ Q) ⊃ (R & S)]?",formula:true,options:["R & S; P ∨ Q; the conditional; the outer negation","P ∨ Q; R & S; the outer negation; the conditional","P ∨ Q; R & S; the conditional; the outer negation","The outer negation; the conditional; P ∨ Q; R & S"],answer:2,explanation:"The disjunction and conjunction have equally small scopes, so calculate the leftmost one first. Then calculate the conditional and, last, the outer negation."}
 ];
 
 const TABLE_PROBLEMS = [
@@ -313,19 +332,27 @@ function typedCorrect(){return stripOuter(normalizeFormula(document.getElementBy
 
 function tableComplete(p){
   const cells=p.rows.every((r,ri)=>p.cols.every((c,ci)=>document.getElementById(`${p.id}-r${ri}-c${ci}`).value));
-  return cells&&choice(`${p.id}-analysis`)!==null&&choice(`${p.id}-conf`)!==null;
+  return cells&&choice(`${p.id}-analysis`)!==null;
+}
+function missingResponses(){
+  const missing=[];
+  MC_ITEMS.forEach((q,i)=>{if(choice(q.id)===null)missing.push({label:`Question ${i+1}`,element:document.getElementById(`card-${q.id}`)});});
+  if(!document.getElementById("typed1").value.trim())missing.push({label:"Translation Challenge",element:document.getElementById("card-typed1")});
+  TABLE_PROBLEMS.forEach(p=>{
+    p.rows.forEach((r,ri)=>p.cols.forEach((c,ci)=>{if(!document.getElementById(`${p.id}-r${ri}-c${ci}`).value)missing.push({label:`${p.title}, row ${ri+1}: ${c.label}`,element:document.getElementById(`card-${p.id}`)});}));
+    if(choice(`${p.id}-analysis`)===null)missing.push({label:`${p.title}: analysis question`,element:document.getElementById(`card-${p.id}`)});
+  });
+  return missing;
 }
 function allComplete(){
-  const mc=MC_ITEMS.every(q=>choice(q.id)!==null&&choice(`${q.id}-conf`)!==null);
-  const typed=document.getElementById("typed1").value.trim()&&choice("typed1-conf")!==null;
-  return mc&&typed&&TABLE_PROBLEMS.every(tableComplete);
+  return missingResponses().length===0;
 }
 
 function updateProgress(){
   let done=0,total=0;
-  MC_ITEMS.forEach(q=>{total+=2;if(choice(q.id)!==null)done++;if(choice(`${q.id}-conf`)!==null)done++;});
-  total+=2;if(document.getElementById("typed1").value.trim())done++;if(choice("typed1-conf")!==null)done++;
-  TABLE_PROBLEMS.forEach(p=>{p.rows.forEach((r,ri)=>p.cols.forEach((c,ci)=>{total++;if(document.getElementById(`${p.id}-r${ri}-c${ci}`).value)done++;}));total+=2;if(choice(`${p.id}-analysis`)!==null)done++;if(choice(`${p.id}-conf`)!==null)done++;});
+  MC_ITEMS.forEach(q=>{total++;if(choice(q.id)!==null)done++;});
+  total++;if(document.getElementById("typed1").value.trim())done++;
+  TABLE_PROBLEMS.forEach(p=>{p.rows.forEach((r,ri)=>p.cols.forEach((c,ci)=>{total++;if(document.getElementById(`${p.id}-r${ri}-c${ci}`).value)done++;}));total++;if(choice(`${p.id}-analysis`)!==null)done++;});
   const pct=Math.round(done/total*100);document.getElementById("progressBar").style.width=`${pct}%`;document.getElementById("progressText").textContent=`${pct}% complete`;
 }
 
@@ -336,11 +363,17 @@ function addSkill(map,name,earned,possible,highError=false){
 
 function checkWork(){
   const warn=document.getElementById("incompleteWarning");warn.classList.remove("show");
-  if(!allComplete()){warn.textContent="Please complete every answer, truth-table cell, analysis question, and confidence rating before checking your work.";warn.classList.add("show");warn.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  document.querySelectorAll(".needs-attention").forEach(x=>x.classList.remove("needs-attention"));
+  const missing=missingResponses();
+  if(missing.length){
+    const labels=missing.slice(0,5).map(x=>x.label).join("; "),remainder=missing.length>5?`—and ${missing.length-5} more`:"";
+    warn.textContent=`Please complete ${missing.length===1?"this response":"these responses"}: ${labels}${remainder}. Confidence ratings are optional.`;
+    warn.classList.add("show");missing.forEach(x=>x.element?.classList.add("needs-attention"));missing[0].element?.scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
   checked=true;records.length=0;const skills={};let earned=0,possible=0;
 
   MC_ITEMS.forEach(q=>{
-    const ans=Number(choice(q.id)),conf=choice(`${q.id}-conf`),ok=ans===q.answer;earned+=ok?1:0;possible++;
+    const ans=Number(choice(q.id)),conf=choice(`${q.id}-conf`)||"Not reported",ok=ans===q.answer;earned+=ok?1:0;possible++;
     addSkill(skills,q.skill,ok?1:0,1,!ok&&conf==="Very sure");
     records.push({skill:q.skill,prompt:q.text,answer:q.options[ans],correct:q.options[q.answer],confidence:conf,ok,feedback:q.explanation});
     const card=document.getElementById(`card-${q.id}`);card.classList.add(ok?"correct":"incorrect");
@@ -349,7 +382,7 @@ function checkWork(){
     card.querySelectorAll("input").forEach(x=>x.disabled=true);
   });
 
-  const tInput=document.getElementById("typed1"),tConf=choice("typed1-conf"),tOk=typedCorrect();earned+=tOk?1:0;possible++;
+  const tInput=document.getElementById("typed1"),tConf=choice("typed1-conf")||"Not reported",tOk=typedCorrect();earned+=tOk?1:0;possible++;
   addSkill(skills,"English to TL translation",tOk?1:0,1,!tOk&&tConf==="Very sure");
   records.push({skill:"English to TL translation",prompt:"If it is sunny and I feel energized, then we will jog.",answer:tInput.value,correct:"(S & E) ⊃ J",confidence:tConf,ok:tOk,feedback:"The conjunction S & E forms the antecedent of the conditional; J is the consequent."});
   const tCard=document.getElementById("card-typed1"),tFb=document.getElementById("fb-typed1");tCard.classList.add(tOk?"correct":"incorrect");tFb.classList.add("show");
@@ -361,14 +394,14 @@ function checkWork(){
     p.rows.forEach((r,ri)=>p.cols.forEach((c,ci)=>{
       const el=document.getElementById(`${p.id}-r${ri}-c${ci}`),expected=tf(c.fn(r)),ok=el.value===expected;cellTotal++;if(ok)cellRight++;else wrongCells.push(`row ${ri+1}, ${c.label}: should be ${expected}`);el.disabled=true;
     }));
-    const analysisAns=Number(choice(`${p.id}-analysis`)),analysisOk=analysisAns===p.analysis.answer,conf=choice(`${p.id}-conf`);
+    const analysisAns=Number(choice(`${p.id}-analysis`)),analysisOk=analysisAns===p.analysis.answer,conf=choice(`${p.id}-conf`)||"Not reported";
     earned+=cellRight+(analysisOk?1:0);possible+=cellTotal+1;
     addSkill(skills,"Truth-table construction",cellRight,cellTotal,cellRight<cellTotal&&conf==="Very sure");
     addSkill(skills,"Semantic analysis",analysisOk?1:0,1,!analysisOk&&conf==="Very sure");
     records.push({skill:"Truth-table construction",prompt:p.prompt,answer:`${cellRight}/${cellTotal} calculated cells correct; judgment: ${p.analysis.options[analysisAns]}`,correct:`${cellTotal}/${cellTotal} calculated cells correct; judgment: ${p.analysis.options[p.analysis.answer]}`,confidence:conf,ok:cellRight===cellTotal&&analysisOk,feedback:p.analysis.explanation+(wrongCells.length?` First cell issues: ${wrongCells.slice(0,3).join("; ")}.`:"")});
     const card=document.getElementById(`card-${p.id}`),fb=document.getElementById(`fb-${p.id}`);const allOk=cellRight===cellTotal&&analysisOk;card.classList.add(allOk?"correct":"incorrect");fb.classList.add("show");
     fb.innerHTML=allOk?`<strong class="correct-text">Correct table and judgment.</strong> ${esc(p.analysis.explanation)}`:`<strong class="incorrect-text">Review needed.</strong> You completed ${cellRight}/${cellTotal} calculated cells correctly. The correct judgment is <strong>${esc(p.analysis.options[p.analysis.answer])}</strong>. ${esc(p.analysis.explanation)}${wrongCells.length?`<br><span class="mini">Check: ${esc(wrongCells.slice(0,4).join("; "))}${wrongCells.length>4?"; and additional cells":""}.</span>`:""}`;
-    card.querySelectorAll("input").forEach(x=>x.disabled=true);
+    card.querySelectorAll("input, select").forEach(x=>x.disabled=true);
   });
 
   const pct=Math.round(earned/possible*100);document.getElementById("scoreLine").textContent=`Overall: ${earned}/${possible} points (${pct}%)`;
@@ -387,7 +420,7 @@ function buildPrompt(){
 
   const prompt=`ROLE
 
-You are a concise, adaptive tutor for an introductory Symbolic Logic course. I completed an independent Test 2 PromptForger covering truth-functional logic, valid argument forms, TL syntax, translation, and truth-table analysis.
+You are a concise, adaptive tutor for an introductory Symbolic Logic course. I completed an independent Test 2 PromptForger covering truth-functional logic, valid argument forms, TL syntax, translation, computation order, and truth-table analysis.
 
 Use the KNOWLEDGE BASE below as authoritative. Use the course's terminology and symbols. Do not substitute notation from another textbook.
 
@@ -491,7 +524,7 @@ Validity: an argument is invalid if any row has all true premises and a false co
 
 Equivalence: formulas are equivalent when their final columns match on every row.
 
-Consistency: a set is consistent when at least one row makes every sentence in the set true. Otherwise, it is inconsistent.
+Consistency: a set is consistent when there is at least one row—or one truth-value assignment—in which all the sentences in the set are true. Otherwise, it is inconsistent.
 
 ==================================================
 ENDING SEQUENCE
@@ -523,7 +556,8 @@ function resetAll(){
 }
 
 renderMC();renderTables();updateProgress();
-document.addEventListener("change",updateProgress);document.getElementById("typed1").addEventListener("input",updateProgress);
+document.addEventListener("change",event=>{updateProgress();event.target.closest(".question, .tt-problem")?.classList.remove("needs-attention");});
+document.getElementById("typed1").addEventListener("input",event=>{updateProgress();event.target.closest(".question")?.classList.remove("needs-attention");});
 document.querySelectorAll(".symbol-btn").forEach(b=>b.addEventListener("click",()=>insertSymbol(b.dataset.symbol)));
 document.getElementById("checkBtn").addEventListener("click",checkWork);
 document.getElementById("alexBtn").addEventListener("click",buildPrompt);
